@@ -1,0 +1,160 @@
+@page
+@model SistemaIncidenciasFIEI.Pages.ReportarModel
+@{
+    ViewData["Title"] = "Reportar incidencia";
+}
+
+<div class="container py-4">
+    <h1>Reportar una incidencia</h1>
+    <p>Describe el problema para que el personal pueda organizar su atención.</p>
+
+    <div class="alert alert-info">
+        Ingresa tus datos y describe el problema. Si tu correo institucional aún no existe, se registrará como Alumno al guardar el ticket.
+    </div>
+
+    <form method="post">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="nombres" class="form-label">Nombres</label>
+                        <input id="nombres" name="nombres" class="form-control" maxlength="200" required />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="apellidos" class="form-label">Apellidos</label>
+                        <input id="apellidos" name="apellidos" class="form-control" maxlength="200" required />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="correo" class="form-label">Correo institucional</label>
+                    <input id="correo" name="correo" type="email" class="form-control" maxlength="300"
+                           placeholder="2024020463@unfv.edu.pe" required />
+                </div>
+
+                <div class="mb-3">
+                    <label for="titulo" class="form-label">Título del problema</label>
+                    <input id="titulo" name="titulo" class="form-control"
+                           placeholder="Ejemplo: La computadora no enciende" maxlength="120" required />
+                </div>
+
+                <div class="mb-3">
+                    <label for="lugar" class="form-label">Salón o laboratorio</label>
+                    <input id="lugar" name="lugar" class="form-control" maxlength="100"
+                           placeholder="Ejemplo: Laboratorio 3, aula 204 o pasillo del pabellón B" required />
+                </div>
+
+                <div class="mb-3">
+                    <label for="tipoLugar" class="form-label">Tipo de lugar</label>
+                    <select id="tipoLugar" name="tipoLugar" class="form-select" required>
+                        <option value="">Selecciona el tipo...</option>
+                        <option>Laboratorio</option>
+                        <option>Aula</option>
+                        <option>Oficina</option>
+                        <option>Pasillo</option>
+                        <option>Otro</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="equipo" class="form-label">Código o nombre del equipo (opcional)</label>
+                    <input id="equipo" name="equipo" class="form-control" maxlength="100"
+                           oninput="actualizarRequeridoTipoEquipo()"
+                           placeholder="Ejemplo: Computadora 1, PC-LAB03-01 o proyector" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="tipoEquipo" class="form-label">Tipo de equipo</label>
+                    <select id="tipoEquipo" name="tipoEquipo" class="form-select" onchange="actualizarRequeridoTipoEquipo()">
+                        <option value="">Selecciona el tipo de equipo...</option>
+                        <option>Computadora</option>
+                        <option>Equipo audiovisual</option>
+                        <option>Impresora</option>
+                        <option>Proyector</option>
+                        <option>Otro</option>
+                    </select>
+                    <div class="form-text">Es obligatorio solo si ingresas un equipo.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="categoria" class="form-label">Categoría</label>
+                    <select id="categoria" name="categoria" class="form-select" required>
+                        <option value="">Selecciona una categoría...</option>
+                        @foreach (var categoria in Model.Categorias)
+                        {
+                            <option value="@categoria">@categoria</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="descripcion" class="form-label">Describe el problema</label>
+                    <textarea id="descripcion" name="descripcion" class="form-control" rows="4"
+                              placeholder="¿Qué ocurre? ¿Desde cuándo?" maxlength="1000" required></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="impacto" class="form-label">Impacto</label>
+                        <select id="impacto" name="impacto" class="form-select" onchange="calcularPrioridad()">
+                            <option value="Bajo">Bajo</option>
+                            <option value="Medio">Medio</option>
+                            <option value="Alto">Alto</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="urgencia" class="form-label">Urgencia</label>
+                        <select id="urgencia" name="urgencia" class="form-select" onchange="calcularPrioridad()">
+                            <option value="Baja">Baja</option>
+                            <option value="Media">Media</option>
+                            <option value="Alta">Alta</option>
+                        </select>
+                    </div>
+                </div>
+
+                <p class="fs-5">
+                    Prioridad estimada:
+                    <strong id="prioridad">Baja</strong>
+                </p>
+
+                <button type="submit" class="btn btn-primary">Enviar reporte</button>
+            </div>
+        </div>
+    </form>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Mensaje))
+    {
+        <div class="alert @(Model.EsError ? "alert-danger" : "alert-success") mt-3" role="alert">
+            @Model.Mensaje
+        </div>
+    }
+</div>
+
+<script>
+    function actualizarRequeridoTipoEquipo() {
+        const equipo = document.getElementById("equipo");
+        const tipoEquipo = document.getElementById("tipoEquipo");
+        tipoEquipo.required = equipo.value.trim().length > 0;
+        if (!tipoEquipo.required) tipoEquipo.value = "";
+    }
+
+    actualizarRequeridoTipoEquipo();
+
+    function calcularPrioridad() {
+        const impacto = document.getElementById("impacto").value;
+        const urgencia = document.getElementById("urgencia").value;
+        const matriz = {
+            "Bajo-Baja": "Baja",
+            "Bajo-Media": "Baja",
+            "Bajo-Alta": "Media",
+            "Medio-Baja": "Baja",
+            "Medio-Media": "Media",
+            "Medio-Alta": "Alta",
+            "Alto-Baja": "Media",
+            "Alto-Media": "Alta",
+            "Alto-Alta": "Crítica"
+        };
+        document.getElementById("prioridad").textContent = matriz[`${impacto}-${urgencia}`];
+    }
+</script>

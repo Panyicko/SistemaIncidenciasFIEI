@@ -1,0 +1,110 @@
+@page
+@model SistemaIncidenciasFIEI.Pages.IncidenciasModel
+@{
+    ViewData["Title"] = "Incidencias registradas";
+}
+
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div>
+            <h1 class="mb-1">Incidencias registradas</h1>
+            <p class="text-muted mb-0">Reportes guardados en SQL Server. La lista se actualiza cada 10 segundos.</p>
+        </div>
+        <a class="btn btn-primary" asp-page="/Reportar">+ Nuevo reporte</a>
+    </div>
+
+    @if (TempData["Mensaje"] is string mensaje)
+    {
+        <div class="alert alert-success" role="alert">@mensaje</div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-danger" role="alert">@Model.Error</div>
+    }
+    else
+    {
+        <div class="mb-3">
+            <input id="buscarIncidencia" class="form-control" type="search"
+                   placeholder="Buscar por título, lugar, correo o estado..." aria-label="Buscar incidencias" />
+        </div>
+
+        <div class="table-responsive border rounded">
+            <table class="table table-striped table-hover align-middle mb-0" id="tablaIncidencias">
+                <thead class="table-dark">
+                    <tr>
+                        <th>N.º</th>
+                        <th>Fecha y hora de creación</th>
+                        <th>Título</th>
+                        <th>Descripción</th>
+                        <th>Reportante</th>
+                        <th>Lugar</th>
+                        <th>Equipo</th>
+                        <th>Categoría</th>
+                        <th>Impacto</th>
+                        <th>Urgencia</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var incidencia in Model.Incidencias)
+                    {
+                        <tr>
+                            <td>@incidencia.Id</td>
+                            <td>@incidencia.Fecha.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                            <td>
+                                <strong>@incidencia.Titulo</strong>
+                            </td>
+                            <td>@incidencia.Descripcion</td>
+                            <td>@incidencia.Correo</td>
+                            <td>@incidencia.Lugar</td>
+                            <td>@incidencia.Equipo</td>
+                            <td>@incidencia.Categoria</td>
+                            <td>@incidencia.Impacto</td>
+                            <td>@incidencia.Urgencia</td>
+                            <td><span class="badge text-bg-primary">@incidencia.Prioridad</span></td>
+                            <td><span class="badge text-bg-secondary">@incidencia.Estado</span></td>
+                        </tr>
+                    }
+                    @if (Model.Incidencias.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="12" class="text-center text-muted py-4">Todavía no hay reportes registrados.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="small text-muted mt-2">Total: @Model.Incidencias.Count reporte(s)</div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        const cajaBusqueda = document.getElementById("buscarIncidencia");
+        const claveFiltro = "sigpi-filtro-incidencias";
+        if (cajaBusqueda) {
+            cajaBusqueda.value = sessionStorage.getItem(claveFiltro) || "";
+        }
+
+        function filtrarIncidencias() {
+            const filtro = (cajaBusqueda?.value || "").toLocaleLowerCase();
+            document.querySelectorAll("#tablaIncidencias tbody tr").forEach(fila => {
+                fila.hidden = !fila.innerText.toLocaleLowerCase().includes(filtro);
+            });
+        }
+
+        filtrarIncidencias();
+        cajaBusqueda?.addEventListener("input", function () {
+            sessionStorage.setItem(claveFiltro, this.value);
+            filtrarIncidencias();
+        });
+
+        setInterval(() => {
+            if (!document.hidden && document.activeElement !== cajaBusqueda) {
+                window.location.reload();
+            }
+        }, 10000);
+    </script>
+}
