@@ -1,0 +1,25 @@
+# .NET build output
+**/bin/
+**/obj/
+
+# Visual Studio personal state
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Local configuration and secrets
+**/appsettings.Development.json
+**/appsettings.*.local.json
+
+# Database exports and local data (do not commit without review)
+*.bak
+*.mdf
+*.ldf
+*.sqlite
+*.db
+
+# OS/editor files
+.DS_Store
+Thumbs.db
