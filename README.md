@@ -15,9 +15,11 @@ La aplicación aún está en desarrollo. La asignación de técnicos, historial 
 
 - .NET 10 SDK.
 - SQL Server.
-- Base de datos `SIGPI_FIEI` con las tablas y catálogos que usa la aplicación.
+- Base de datos `SIGPI_FIEI`, creada con el script incluido en `BaseDatos`.
 
-> Este repositorio contiene el código fuente, pero actualmente no incluye un script `.sql` de instalación ni una copia `.bak` de `SIGPI_FIEI`. GitHub tampoco aloja la instancia activa de SQL Server. Antes de ejecutar la aplicación en otro equipo, prepara o restaura esa base de datos y sus datos de catálogo.
+El archivo `BaseDatos/01_Crear_SIGPI_FIEI.sql` crea las tablas y catálogos iniciales que requiere la aplicación. El script no contiene los reportes, correos ni demás datos reales de tu base local. GitHub guarda este archivo como código; no aloja la instancia activa de SQL Server.
+
+Para preparar la base en otro equipo, abre el script en SSMS y ejecútalo. Necesitas permisos para crear la base de datos `SIGPI_FIEI` y sus tablas.
 
 ## Configurar la conexión local
 
